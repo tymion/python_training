@@ -3,13 +3,34 @@
   <head>
     <meta charset="utf-8">
     <title>{% block title %}Default Title{% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'layout/sideMenu.css' %}">
     {% block stylesheet %}{% endblock %}
   </head>
   <body>
     <header>
       ...
     </header>
+	<nav>
+		<ul>
+			<div class=divSideMenu">
+				<li>
+					<a href="">
+						<img src="{% static "images/home_512.png" %}" height="42" width="42">
+					</a>
+				</li>
+				<li>
+					<a href="">
+						<img src="{% static "images/apps_512.png" %}" height="42" width="42">
+					</a>
+				</li>
+				<li>
+					<a href="">
+						<img src="{% static "images/search_512.png" %}" height="42" width="42">
+					</a>
+				</li>
+			</div>
+		</ul>
+	</nav>
     <main>
       {% block content %}
       {% endblock %}
