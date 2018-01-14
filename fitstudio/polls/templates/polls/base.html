@@ -3,45 +3,53 @@
   <head>
     <meta charset="utf-8">
     <title>{% block title %}Default Title{% endblock %}</title>
+<!--
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+--!>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"
+      integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+      crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'layout/sideMenu.css' %}">
     {% block stylesheet %}{% endblock %}
   </head>
   <body>
-    <header>
-      ...
+    <header class="menu_space">
+      <img class="logo_icon" src="{% static "images/logo.png" %}">
+      <h1 class="header">f i t S t u d i o</h1>
     </header>
-	<nav>
-		<ul>
-			<div class=divSideMenu">
-				<li>
-					<a href="">
-						<img src="{% static "images/home_512.png" %}" height="42" width="42">
-					</a>
-				</li>
-				<li>
-					<a href="">
-						<img src="{% static "images/apps_512.png" %}" height="42" width="42">
-					</a>
-				</li>
-				<li>
-					<a href="">
-						<img src="{% static "images/search_512.png" %}" height="42" width="42">
-					</a>
-				</li>
-			</div>
-		</ul>
-	</nav>
+    <nav class="menu_space">
+      <ul>
+        <div>
+          <li>
+            <a class="menu" href="index.html">
+              <img class="menu_icon" src="{% static "images/home_512.png" %}">
+            </a>
+          </li>
+          <li>
+            <a class="menu" href="schedule.html">
+              <img class="menu_icon" src="{% static "images/apps_512.png" %}">
+            </a>
+          </li>
+          <li>
+            <a class="menu" href="">
+              <img class="menu_icon" src="{% static "images/search_512.png" %}">
+            </a>
+          </li>
+        </div>
+      </ul>
+    </nav>
     <main>
       {% block content %}
       {% endblock %}
     </main>
-    <footer>
-      ...
+    <!--
+    <footer class="menu_space">
+      <h6>tyminski.rafal@gmail.com</h6>
     </footer>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
-            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-            crossorigin="anonymous"></script>
-    <script src="{% static 'js/app.js' %}"></script>
+    --!>
+<!--    <script src="{% static 'js/app.js' %}"></script>
+--!>
     {% block javascript %}{% endblock %}
   </body>
 </html>

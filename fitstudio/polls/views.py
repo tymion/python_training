@@ -15,11 +15,13 @@ class SignUpView(CreateView):
     template_name = 'core/signup.html'
     form_class = UserCreationForm
 
+def schedule(request):
+    template = loader.get_template('polls/schedule.html')
+    return render(request, 'polls/schedule.html')
+
 def index(request):
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
     template = loader.get_template('polls/index.html')
-    context = {'latest_question_list': latest_question_list,}
-    return render(request, 'polls/index.html', context)
+    return render(request, 'polls/index.html')
 
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
