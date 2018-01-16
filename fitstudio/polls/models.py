@@ -16,10 +16,17 @@ class Coach(models.Model):
     description_text = models.CharField(max_length=200)
     style_text = models.CharField(max_length=200)
 
+class Category(models.Model):
+    category_text = models.CharField(max_length=50)
+
+class DayOfTheWeek(models.Model):
+    day_text = models.CharField(max_length=50)
+
 class Term(models.Model):
-    days_text = models.CharField(max_length=200)
-    timeStart = models.DateTimeField('time_start')
-    timeEnd = models.DateTimeField('time_end')
+    day_array = models.ManyToManyField(DayOfTheWeek)
+    periodic = models.BooleanField(default=False)
+    timeStart = models.TimeField('time_start')
+    timeEnd = models.TimeField('time_end')
 
 class ActivityTimeTable(models.Model):
     activity_text = models.CharField(max_length=200)
