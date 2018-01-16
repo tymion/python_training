@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'javascript_settings'
+    'javascript_settings',
+    'address'
 ]
 
 MIDDLEWARE = [
@@ -131,3 +132,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_debug')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+GOOGLE_API_KEY = 'AIzaSyC9kNEDwUjFE5lUa4gGXODFq2U7ZIjEf64'

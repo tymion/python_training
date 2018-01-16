@@ -1,4 +1,5 @@
 from django.db import models
+from address.models import AddressField
 
 # Create your models here.
 class Student(models.Model):
@@ -8,8 +9,10 @@ class Student(models.Model):
         return self.student_text
 
 class Coach(models.Model):
-    coach_text = models.CharField(max_length=200)
+    name_text = models.CharField(max_length=200)
+    surname_text = models.CharField(max_length=200)
     alias_text = models.CharField(max_length=200)
+    address = AddressField(on_delete=models.CASCADE)
     description_text = models.CharField(max_length=200)
     style_text = models.CharField(max_length=200)
 
