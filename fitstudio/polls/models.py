@@ -8,19 +8,19 @@ class Student(models.Model):
     def __str__(self):
         return self.student_text
 
+class Category(models.Model):
+    category_text = models.CharField(max_length=50)
+
+class DayOfTheWeek(models.Model):
+    day_text = models.CharField(max_length=50)
+
 class Coach(models.Model):
     name_text = models.CharField(max_length=200)
     surname_text = models.CharField(max_length=200)
     alias_text = models.CharField(max_length=200)
     address = AddressField(on_delete=models.CASCADE)
     description_text = models.CharField(max_length=200)
-    style_text = models.CharField(max_length=200)
-
-class Category(models.Model):
-    category_text = models.CharField(max_length=50)
-
-class DayOfTheWeek(models.Model):
-    day_text = models.CharField(max_length=50)
+    category_array = models.ManyToManyField(Category)
 
 class Term(models.Model):
     day_array = models.ManyToManyField(DayOfTheWeek)
@@ -33,25 +33,10 @@ class ActivityTimeTable(models.Model):
     coach = models.ForeignKey(Coach, on_delete=models.CASCADE)
     maxStudentCnt = models.IntegerField(default=0)
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
-    category_text = models.CharField(max_length=200)
+    category_array = models.ManyToManyField(Category)
 
 class ActivityDone(models.Model):
     activityTimeTeble = models.ForeignKey(ActivityTimeTable, on_delete=models.CASCADE)
     coachReplacement = models.ForeignKey(Coach, on_delete=models.CASCADE)
     date = models.DateTimeField('activity_date')
     studentCnt = models.IntegerField(default=0)
-
-class Question(models.Model):
-    question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
-
-    def __str__(self):
-        return self.question_text
-
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    votes = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.choice_text
