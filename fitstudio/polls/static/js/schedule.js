@@ -1,11 +1,23 @@
 $(document).ready(function() {
     // page is now ready, initialize the calendar...
-    $('#calendar').fullCalendar({
-        /*
-        $.ajax({
-            url: '/ajax/calendar/',
+        data = $.ajax({
+            url: '/polls/ajax/calendar/',
             data: {
-                'username': username
+                'date': new Date()
+            },
+            dataType: 'json',
+            /*
+            success: function (data) {
+                alert("A user with this username already exists.");
+            }
+            */
+        });
+    $('#calendar').fullCalendar(data.parseJSON()
+                /*
+        events: {
+            url: '/polls/ajax/calendar/',
+            data: {
+                'date': new Date()
             },
             dataType: 'json',
             success: function (data) {
@@ -13,8 +25,9 @@ $(document).ready(function() {
                     alert("A user with this username already exists.");
                 }
             }
-        });
-        */
+        }
+                */
+        /*
         locale: 'pl',
         defaultView: 'agendaDay',
         defaultDate: '2018-01-16',
@@ -42,7 +55,7 @@ $(document).ready(function() {
         ]
 
 
-        /*
+        
         defaultView: 'agendaDay',
         header: {
             left: 'prev,next today',
@@ -91,5 +104,5 @@ $(document).ready(function() {
             }
         ]
         */
-    })
+    )
 });
