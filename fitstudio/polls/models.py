@@ -1,5 +1,6 @@
 from django.db import models
 from address.models import AddressField
+import datetime
 
 # Create your models here.
 class Student(models.Model):
@@ -12,31 +13,45 @@ class Category(models.Model):
     category_text = models.CharField(max_length=50)
 
 class DayOfTheWeek(models.Model):
+    index_int = models.IntegerField(default=0)
     day_text = models.CharField(max_length=50)
 
 class Coach(models.Model):
     name_text = models.CharField(max_length=200)
     surname_text = models.CharField(max_length=200)
     alias_text = models.CharField(max_length=200)
-    address = AddressField(on_delete=models.CASCADE)
+    coachAddress_address = AddressField(on_delete=models.CASCADE)
     description_text = models.CharField(max_length=200)
     category_array = models.ManyToManyField(Category)
 
 class Term(models.Model):
     day_array = models.ManyToManyField(DayOfTheWeek)
-    periodic = models.BooleanField(default=False)
-    timeStart = models.TimeField('time_start')
-    timeEnd = models.TimeField('time_end')
+    periodic_bool = models.BooleanField(default=False)
+    timeStart_time = models.TimeField('time_start')
+    timeEnd_time = models.TimeField('time_end')
 
 class ActivityTimeTable(models.Model):
     activity_text = models.CharField(max_length=200)
-    coach = models.ForeignKey(Coach, on_delete=models.CASCADE)
-    maxStudentCnt = models.IntegerField(default=0)
-    term = models.ForeignKey(Term, on_delete=models.CASCADE)
+    coach_key = models.ForeignKey(Coach, on_delete=models.CASCADE)
+    maxStudentCnt_int = models.IntegerField(default=0)
+    term_key = models.ForeignKey(Term, on_delete=models.CASCADE)
+    dateStart_date = models.DateField('date_start', default=datetime.date.today)
+    dateEnd_date = models.DateField('date_end', default=datetime.date.today,
+            null=True, blank=True)
     category_array = models.ManyToManyField(Category)
 
 class ActivityDone(models.Model):
-    activityTimeTeble = models.ForeignKey(ActivityTimeTable, on_delete=models.CASCADE)
-    coachReplacement = models.ForeignKey(Coach, on_delete=models.CASCADE)
-    date = models.DateTimeField('activity_date')
-    studentCnt = models.IntegerField(default=0)
+    activity_key = models.ForeignKey(ActivityTimeTable, on_delete=models.CASCADE)
+    coachReplacement_key = models.ForeignKey(Coach, on_delete=models.CASCADE,
+            null=True, blank=True)
+    date = models.DateField('activity_date', default=datetime.date.today)
+    studentCnt_int = models.IntegerField(default=0)
+
+class WorkHours(models.Model):
+    day_array = models.ManyToManyField(DayOfTheWeek)
+    hourStart_time = models.TimeField()
+    hourEnd_time = models.TimeField()
+    dateStart_date = models.DateField('work_start_date',
+            default=datetime.date.today)
+    dateEnd_date = models.DateField('work_end_date',
+            default=datetime.date.today, null=True, blank=True)
