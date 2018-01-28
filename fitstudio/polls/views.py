@@ -3,20 +3,80 @@ import logging
 import datetime
 
 # Create your views here.
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 
+from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 from django.db.models import Q
-from .models import WorkHours, ActivityTimeTable, ActivityDone
+
+from .models import WorkHours, ActivityTimeTable, ActivityDone, Category
+
+from .forms import NameForm, AddCategoryForm, ListCategoryForm
 
 logger = logging.getLogger(__name__)
 
-class SignUpView(CreateView):
-    template_name = 'core/signup.html'
-    form_class = UserCreationForm
+def get_name(request):
+    if request.method == "POST":
+        logger.error('=============Invalid date value1.')
+        form = NameForm(request.POST)
+        if form.is_valid():
+            logger.error('=============Invalid date value.2')
+            return HttpResponseRedirect('/thanks/')
+    else:
+        logger.error('=============Invalid date value.i3')
+        form = NameForm()
+
+    logger.error('=============Invalid date value4.')
+    return render(request, 'polls/index.html', {'form': form})
+
+def get_category_response(request, add_category_form):
+    forms = {
+        'add_form': add_category_form,
+        'list_form': ListCategoryForm()
+    }
+
+    logger.error('=============Invalid date value4.')
+    template = loader.get_template('polls/category.html')
+    return render(request, 'polls/category.html', forms)
+
+def add_category(request):
+    if request.method == "GET":
+        # this should not happen
+        return Http404
+
+    form = AddCategoryForm(request.POST)
+    if form.is_valid():
+        if Category.objects.filter(category_text=form.cleaned_data['add_category']):
+            form.add_error('add_category', 'Category already exist.')
+        else:
+            req = Category(category_text=form.cleaned_data['add_category'])
+            req.save()
+            messages.info(request, 'Category was added.')
+    return get_category_response(request, form)
+
+def category(request):
+    if request.method == "POST":
+        if request.POST.get("category_text"):
+            form = AddCategoryForm(request.POST)
+            if form.is_valid():
+                if Category.objects.filter(category_text=request.POST['category_text']):
+                    messages.error(request, 'Category already exist.')
+                else:
+                    form.save()
+                    messages.info(request, 'Category was added.')
+                    return HttpResponseRedirect(request.path)
+        elif request.POST.get("category_list"):
+            logger.error('=============Invalid date value####111.!!!!')
+        else:
+            logger.error('=============Invalid date value###222.!!!!')
+
+    else:
+        logger.error('=============Invalid date value.i3')
+        form = AddCategoryForm()
+    return get_category_response(request, form)
 
 def schedule(request):
     template = loader.get_template('polls/schedule.html')
@@ -66,7 +126,6 @@ def get_work_hours(date):
         return get_default_work_hours()
 
     data = {
-        'allDaySlot': 'false',
         'axisFormat': 'h:mm A',
         'timeFormat': 'h:mm T',
         'minTime': workHour.hourStart_time,
@@ -164,7 +223,7 @@ def get_fullcalendar_data(request):
         'defaultDate': date_str,
         'header': {
             'left': 'prev,next today',
-            'center': 'Plan zajęć',
+            'center': 'title',
             'right': 'month,agendaWeek,agendaDay'
         },
         'editable': 'false',

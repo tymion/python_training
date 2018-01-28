@@ -1,0 +1,27 @@
+{% extends 'polls/base.html' %}
+
+{% block stylesheet %}
+    {% load static from staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'layout/category.css' %}">
+{% endblock %}
+
+{% block content %}
+<form name="add_form" method="post">
+    {% csrf_token %}
+    {% if messages %}
+    {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+    {% endif %}
+    {{ add_form }}
+    <input type="submit" value="Add"/>
+</form>
+    <br>
+<form name="list_form" method="post">
+    {% csrf_token %}
+    {{ list_form }}
+    <input type="submit" value="Edit" />
+    <input type="submit" value="Delete" />
+</form>
+
+{% endblock %}

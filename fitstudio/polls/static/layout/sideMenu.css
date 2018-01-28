@@ -78,6 +78,12 @@ main
 {
     height:50px;
 }
+
+.fc-day-grid
+{
+    display: none;
+}
+
 /*
 .fc-time-grid
 {
@@ -97,4 +103,24 @@ main
     font-family:"Comic Sans MS", cursive, sans-serif;
     color:#B2BCC5;
     text-decoration: none;*/
+}
+
+ul.errorlist
+{
+    color: red;
+}
+
+li.info
+{
+    color: green;
+}
+
+li.error
+{
+    color: red;
+}
+
+input[type=submit]
+{
+    padding: 0px 5px 0px 5px;
 }
