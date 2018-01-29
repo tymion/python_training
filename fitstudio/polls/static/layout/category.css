@@ -20,3 +20,8 @@ label[for=id_categories_list]
 {
     display: block;
 }
+
+label[for=id_edit_category]
+{
+    display: block;
+}

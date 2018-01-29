@@ -14,7 +14,7 @@ from django.db.models import Q
 
 from .models import WorkHours, ActivityTimeTable, ActivityDone, Category
 
-from .forms import NameForm, AddCategoryForm, ListCategoryForm
+from .forms import NameForm, AddCategoryForm, ListCategoryForm, EditCategoryForm
 
 logger = logging.getLogger(__name__)
 
@@ -32,51 +32,75 @@ def get_name(request):
     logger.error('=============Invalid date value4.')
     return render(request, 'polls/index.html', {'form': form})
 
-def get_category_response(request, add_category_form):
+def get_category_response(request, add_category_form, list_category_form, edit_category_form):
     forms = {
         'add_form': add_category_form,
-        'list_form': ListCategoryForm()
+        'list_form': list_category_form
     }
+    if edit_category_form:
+        forms.update({'edit_form': edit_category_form })
 
-    logger.error('=============Invalid date value4.')
     template = loader.get_template('polls/category.html')
     return render(request, 'polls/category.html', forms)
 
-def add_category(request):
-    if request.method == "GET":
-        # this should not happen
-        return Http404
-
-    form = AddCategoryForm(request.POST)
-    if form.is_valid():
-        if Category.objects.filter(category_text=form.cleaned_data['add_category']):
-            form.add_error('add_category', 'Category already exist.')
-        else:
-            req = Category(category_text=form.cleaned_data['add_category'])
-            req.save()
-            messages.info(request, 'Category was added.')
-    return get_category_response(request, form)
-
 def category(request):
+
+    add_form = None
+    list_form = None
+    edit_form = None
+
     if request.method == "POST":
+
+        # adding new category
         if request.POST.get("category_text"):
-            form = AddCategoryForm(request.POST)
-            if form.is_valid():
+
+            add_form = AddCategoryForm(request.POST)
+            if add_form.is_valid():
+
                 if Category.objects.filter(category_text=request.POST['category_text']):
                     messages.error(request, 'Category already exist.')
                 else:
-                    form.save()
+                    add_form.save()
                     messages.info(request, 'Category was added.')
                     return HttpResponseRedirect(request.path)
-        elif request.POST.get("category_list"):
-            logger.error('=============Invalid date value####111.!!!!')
-        else:
-            logger.error('=============Invalid date value###222.!!!!')
 
-    else:
-        logger.error('=============Invalid date value.i3')
-        form = AddCategoryForm()
-    return get_category_response(request, form)
+        # category was selected
+        elif request.POST.get("categories_list"):
+            # edit category
+            if request.POST.get("list_form") == "Edit":
+
+                edit_form = EditCategoryForm({'edit_category': request.POST.get('categories_list')})
+                request.session['categories_list'] = request.POST.get('categories_list')
+            # delete category
+            elif request.POST.get("list_form") == "Delete":
+
+                Category.objects.filter(category_text=request.POST['categories_list']).delete()
+
+        # try to edit category_text
+        elif request.POST.get("edit_category"):
+
+            if request.session['categories_list'] == request.POST['edit_category']:
+                messages.error(request, 'Category value was not changed.')
+            elif Category.objects.filter(category_text=request.POST['edit_category']):
+                messages.error(request, 'Category already exists.')
+            else:
+                data = Category.objects.get(category_text=request.session['categories_list'])
+                data.category_text = request.POST['edit_category']
+                data.save()
+                messages.info(request, 'Category was changed.')
+                return HttpResponseRedirect(request.path)
+
+        else:
+
+            logger.error('Unknown form has send POST request!')
+            return Http404
+
+    if add_form is None:
+        add_form = AddCategoryForm()
+    if list_form is None:
+        list_form = ListCategoryForm()
+
+    return get_category_response(request, add_form, list_form, edit_form)
 
 def schedule(request):
     template = loader.get_template('polls/schedule.html')

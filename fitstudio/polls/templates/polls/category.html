@@ -20,8 +20,21 @@
 <form name="list_form" method="post">
     {% csrf_token %}
     {{ list_form }}
-    <input type="submit" value="Edit" />
-    <input type="submit" value="Delete" />
+    <input name="list_form" type="submit" value="Edit" />
+    <input name="list_form" type="submit" value="Delete" />
+    <br>
+    <br>
 </form>
+{% if edit_form %}
+<form name="edit_form" method="post">
+    {% csrf_token %}
+    {{ edit_form }}
+    <input name="list_form" type="submit" value="Submit" />
+</form>
+{% endif %}
 
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static 'js/category.js' %}"></script>
 {% endblock %}

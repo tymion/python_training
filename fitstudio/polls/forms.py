@@ -19,3 +19,6 @@ class AddCategoryForm(forms.ModelForm):
 
 class ListCategoryForm(forms.Form):
     categories_list = forms.ModelChoiceField(queryset=Category.objects.all().values_list('category_text', flat=True), empty_label="")
+
+class EditCategoryForm(forms.Form):
+    edit_category = forms.CharField(label='Edit category:', max_length=100)

@@ -11,6 +11,20 @@ $(document).ready(function() {
             }
         });
         /*
+    $('#calendar').fullCalendar({
+        locale: 'pl',
+        defaultView: 'agendaDay',
+        defaultDate: moment(new Date()).format('YYYY-MM-DD'),
+        header: {
+            left: 'prev,next today',
+            center: 'textsad',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        navLinks: true,
+        dayClick: function(date, jsEvent, view) {
+            console.log('day', date.format());
+            console.log('coords', jsEvent.pageX, jsEvent.pageY);
+        },
         events: [
             {
                 title: 'All Day Event',
@@ -26,9 +40,10 @@ $(document).ready(function() {
             {
                 title: 'Click for Google',
                 url: 'http://google.com/',
-                start: '2014-06-28'
+                start: '2014-06-28',
                 end: '2018-01-16T18:30:00Z'
             }
         ]
+    })
         */
 });
