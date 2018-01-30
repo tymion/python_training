@@ -29,12 +29,13 @@ class EditCategoryForm(Form):
     edit_category = CharField(label = 'Edit category:', max_length = 100)
 
 class AddDayOfTheWeekForm(ModelForm):
+    index_int = IntegerField(label = 'Day number', max_value = 6, min_value = 0)
+
     class Meta:
         model = DayOfTheWeek
         fields = ['day_text', 'index_int']
         labels = {
-            'day_text': 'Add day name',
-            'index_int': 'day number',
+            'day_text': 'Day name',
         }
 
 class ListDayOfTheWeekForm(Form):
