@@ -1,57 +1,77 @@
-from django.db import models
-from address.models import AddressField
 import datetime
 
-# Create your models here.
-class Student(models.Model):
-    student_text = models.CharField(max_length=200)
+from address.models import AddressField
+
+from django.db.models import Model, CASCADE, ForeignKey
+from django.db.models import CharField, IntegerField, ManyToManyField, BooleanField, TimeField
+from django.db.models import DateField, PositiveSmallIntegerField
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+class Student(Model):
+    student_text = CharField(max_length = 200)
 
     def __str__(self):
         return self.student_text
 
-class Category(models.Model):
-    category_text = models.CharField(max_length=50)
+class Category(Model):
+    category_text = CharField(max_length = 50)
 
-class DayOfTheWeek(models.Model):
-    index_int = models.IntegerField(default=0)
-    day_text = models.CharField(max_length=50)
+class DayOfTheWeek(Model):
+    index_int = PositiveSmallIntegerField(default = 0)
+    day_text = CharField(max_length = 50)
 
-class Coach(models.Model):
-    name_text = models.CharField(max_length=200)
-    surname_text = models.CharField(max_length=200)
-    alias_text = models.CharField(max_length=200)
-    coachAddress_address = AddressField(on_delete=models.CASCADE)
-    description_text = models.CharField(max_length=200)
-    category_array = models.ManyToManyField(Category)
+class Coach(Model):
+    name_text = CharField(max_length = 200)
+    surname_text = CharField(max_length = 200)
+    alias_text = CharField(max_length = 200)
+    coachAddress_address = AddressField(on_delete = CASCADE)
+    description_text = CharField(max_length = 200)
+    category_array = ManyToManyField(Category)
 
-class Term(models.Model):
-    day_array = models.ManyToManyField(DayOfTheWeek)
-    periodic_bool = models.BooleanField(default=False)
-    timeStart_time = models.TimeField('time_start')
-    timeEnd_time = models.TimeField('time_end')
+class Term(Model):
+    day_array = ManyToManyField(DayOfTheWeek)
+    periodic_bool = BooleanField(default = False)
+    timeStart_time = TimeField('time_start')
+    timeEnd_time = TimeField('time_end')
 
-class ActivityTimeTable(models.Model):
-    activity_text = models.CharField(max_length=200)
-    coach_key = models.ForeignKey(Coach, on_delete=models.CASCADE)
-    maxStudentCnt_int = models.IntegerField(default=0)
-    term_key = models.ForeignKey(Term, on_delete=models.CASCADE)
-    dateStart_date = models.DateField('date_start', default=datetime.date.today)
-    dateEnd_date = models.DateField('date_end', default=datetime.date.today,
-            null=True, blank=True)
-    category_array = models.ManyToManyField(Category)
+class ActivityTimeTable(Model):
+    activity_text = CharField(max_length = 200)
+    coach_key = ForeignKey(Coach, on_delete = CASCADE)
+    maxStudentCnt_int = IntegerField(default = 0)
+    term_key = ForeignKey(Term, on_delete = CASCADE)
+    dateStart_date = DateField('date_start', default = datetime.date.today)
+    dateEnd_date = DateField(
+                'date_end',
+                default = datetime.date.today,
+                null = True,
+                blank = True
+            )
+    category_array = ManyToManyField(Category)
 
-class ActivityDone(models.Model):
-    activity_key = models.ForeignKey(ActivityTimeTable, on_delete=models.CASCADE)
-    coachReplacement_key = models.ForeignKey(Coach, on_delete=models.CASCADE,
-            null=True, blank=True)
-    date = models.DateField('activity_date', default=datetime.date.today)
-    studentCnt_int = models.IntegerField(default=0)
+class ActivityDone(Model):
+    activity_key = ForeignKey(ActivityTimeTable, on_delete = CASCADE)
+    coachReplacement_key = ForeignKey(
+                Coach,
+                on_delete = CASCADE,
+                null = True,
+                blank = True)
+    date = DateField(
+                'activity_date',
+                default = datetime.date.today
+            )
+    studentCnt_int = IntegerField(default = 0)
 
-class WorkHours(models.Model):
-    day_array = models.ManyToManyField(DayOfTheWeek)
-    hourStart_time = models.TimeField()
-    hourEnd_time = models.TimeField()
-    dateStart_date = models.DateField('work_start_date',
-            default=datetime.date.today)
-    dateEnd_date = models.DateField('work_end_date',
-            default=datetime.date.today, null=True, blank=True)
+class WorkHours(Model):
+    day_array = ManyToManyField(DayOfTheWeek)
+    hourStart_time = TimeField()
+    hourEnd_time = TimeField()
+    dateStart_date = DateField(
+                'work_start_date',
+                default = datetime.date.today
+            )
+    dateEnd_date = DateField(
+                'work_end_date',
+                default = datetime.date.today,
+                null = True,
+                blank = True
+            )

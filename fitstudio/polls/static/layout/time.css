@@ -1,0 +1,27 @@
+/*
+#id_categories_list
+{
+    display: block;
+}
+#add_category_button
+*/
+label[for=id_day_text]
+{
+    display: block;
+}
+
+#id_categories_list
+{
+    display: block;
+}
+
+
+label[for=id_day_list]
+{
+    display: block;
+}
+
+label[for=id_edit_day]
+{
+    display: block;
+}

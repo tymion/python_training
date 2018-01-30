@@ -3,7 +3,7 @@ import logging
 import datetime
 
 # Create your views here.
-from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 
@@ -12,9 +12,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 from django.db.models import Q
 
-from .models import WorkHours, ActivityTimeTable, ActivityDone, Category
+from .models import WorkHours, ActivityTimeTable, ActivityDone, Category, DayOfTheWeek
 
 from .forms import NameForm, AddCategoryForm, ListCategoryForm, EditCategoryForm
+from .forms import AddDayOfTheWeekForm, ListDayOfTheWeekForm, EditDayOfTheWeekForm
 
 logger = logging.getLogger(__name__)
 
@@ -32,16 +33,89 @@ def get_name(request):
     logger.error('=============Invalid date value4.')
     return render(request, 'polls/index.html', {'form': form})
 
-def get_category_response(request, add_category_form, list_category_form, edit_category_form):
+def get_form_response(request, template_str, add_form, list_form, edit_form):
     forms = {
-        'add_form': add_category_form,
-        'list_form': list_category_form
+        'add_form': add_form,
+        'list_form': list_form
     }
-    if edit_category_form:
-        forms.update({'edit_form': edit_category_form })
+    if edit_form:
+        forms.update({'edit_form': edit_form })
 
-    template = loader.get_template('polls/category.html')
-    return render(request, 'polls/category.html', forms)
+    template = loader.get_template(template_str)
+    return render(request, template_str, forms)
+
+def unpack_day_of_the_week(packed_day):
+    return packed_day[1:-1].split(",", 1)
+#    return packed_day.split(": ", 1)
+
+def time(request):
+
+    add_form = None
+    list_form = None
+    edit_form = None
+
+    if request.method == "POST":
+
+        # adding new category
+        if request.POST.get("day_text"):
+
+            add_form = AddDayOfTheWeekForm(request.POST)
+            if add_form.is_valid():
+
+                if DayOfTheWeek.objects.filter(day_text=request.POST['day_text']) or DayOfTheWeek.objects.filter(index_int=request.POST['index_int']):
+                    messages.error(request, 'Day already exist.')
+                else:
+                    add_form.save()
+                    messages.info(request, 'Day was added.')
+                    # redirection prevent from resending post after page refresh
+                    return HttpResponseRedirect(request.path)
+
+        # day was selected
+        elif request.POST.get("days_list"):
+
+            [ index, day_name ] = unpack_day_of_the_week(request.POST.get('days_list'))
+            logger.error('=============Invalid date value4.' + index + " " + day_name)
+            # edit day
+            if request.POST.get("list_form") == "Edit":
+
+                edit_form = EditDayOfTheWeekForm({'edit_day_text': day_name, 'edit_day_index': index})
+                request.session['original_day_text'] = day_name
+                request.session['original_day_index'] = index
+            # delete day
+            elif request.POST.get("list_form") == "Delete":
+
+                DayOfTheWeek.objects.filter(day_text=day_name).delete()
+                messages.info(request, 'Day was deleted.')
+                # redirection prevent from resending post after page refresh
+                return HttpResponseRedirect(request.path)
+
+        # try to edit category_text
+        elif request.POST.get("edit_day_text"):
+
+            if request.session['original_day_text'] == request.POST['edit_day_text'] and request.session['original_day_index'] == request.POST['edit_day_index']:
+                messages.error(request, 'Day name or index value was not changed.')
+            # check if changed value don't match with other value in db
+            elif (request.session['original_day_text'] != request.POST['edit_day_text'] and DayOfTheWeek.objects.filter(day_text=request.POST['edit_day_text'])) or (request.session['original_day_index'] != request.POST['edit_day_index'] and DayOfTheWeek.objects.filter(index_int=request.POST['edit_day_index'])):
+                messages.error(request, 'Day name or value already exists.')
+            else:
+                data = DayOfTheWeek.objects.get(day_text=request.session['origin_day_text'])
+                data.day_text = request.POST['edit_day_text']
+                data.index_int = request.POST['edit_day_index']
+                data.save()
+                messages.info(request, 'Day was changed.')
+                return HttpResponseRedirect(request.path)
+
+        else:
+
+            logger.error('Unknown form has send POST request!')
+            return HttpResponseBadRequest()
+
+    if add_form is None:
+        add_form = AddDayOfTheWeekForm()
+    if list_form is None:
+        list_form = ListDayOfTheWeekForm()
+
+    return get_form_response(request, 'polls/time.html', add_form, list_form, edit_form)
 
 def category(request):
 
@@ -62,6 +136,7 @@ def category(request):
                 else:
                     add_form.save()
                     messages.info(request, 'Category was added.')
+                    # redirection prevent from resending post after page refresh
                     return HttpResponseRedirect(request.path)
 
         # category was selected
@@ -75,6 +150,9 @@ def category(request):
             elif request.POST.get("list_form") == "Delete":
 
                 Category.objects.filter(category_text=request.POST['categories_list']).delete()
+                messages.info(request, 'Category was deleted.')
+                # redirection prevent from resending post after page refresh
+                return HttpResponseRedirect(request.path)
 
         # try to edit category_text
         elif request.POST.get("edit_category"):
@@ -93,14 +171,14 @@ def category(request):
         else:
 
             logger.error('Unknown form has send POST request!')
-            return Http404
+            return HttpResponseBadRequest()
 
     if add_form is None:
         add_form = AddCategoryForm()
     if list_form is None:
         list_form = ListCategoryForm()
 
-    return get_category_response(request, add_form, list_form, edit_form)
+    return get_form_response(request, 'polls/category.html', add_form, list_form, edit_form)
 
 def schedule(request):
     template = loader.get_template('polls/schedule.html')
