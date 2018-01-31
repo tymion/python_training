@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<form name="add_form" method="post">
+<form method="post">
     {% csrf_token %}
     {% if messages %}
     {% for message in messages %}
@@ -14,22 +14,22 @@
     {% endfor %}
     {% endif %}
     {{ add_form }}
-    <input type="submit" value="Add"/>
+    <input name="form_button" type="submit" value="Add"/>
 </form>
     <br>
-<form name="list_form" method="post">
+<form method="post">
     {% csrf_token %}
     {{ list_form }}
-    <input name="list_form" type="submit" value="Edit" />
-    <input name="list_form" type="submit" value="Delete" />
+    <input name="form_button" type="submit" value="Edit" />
+    <input name="form_button" type="submit" value="Delete" />
     <br>
     <br>
 </form>
 {% if edit_form %}
-<form name="edit_form" method="post">
+<form method="post">
     {% csrf_token %}
     {{ edit_form }}
-    <input name="list_form" type="submit" value="Submit" />
+    <input name="form_button" type="submit" value="Submit" />
 </form>
 {% endif %}
 

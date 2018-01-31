@@ -25,17 +25,22 @@ class AddCategoryForm(ModelForm):
 class ListCategoryForm(Form):
     categories_list = ModelChoiceField(queryset = Category.objects.all().values_list('category_text', flat = True), empty_label = "")
 
-class EditCategoryForm(Form):
-    edit_category = CharField(label = 'Edit category:', max_length = 100)
+class EditCategoryForm(ModelForm):
+    class Meta:
+        model = Category
+        fields = ['category_text']
+        labels = {
+            'category_text': 'Edit category',
+        }
 
 class AddDayOfTheWeekForm(ModelForm):
-    index_int = IntegerField(label = 'Day number', max_value = 6, min_value = 0)
+    index_int = IntegerField(label = 'Day number:', max_value = 6, min_value = 0)
 
     class Meta:
         model = DayOfTheWeek
         fields = ['day_text', 'index_int']
         labels = {
-            'day_text': 'Day name',
+            'day_text': 'Day name:',
         }
 
 class ListDayOfTheWeekForm(Form):

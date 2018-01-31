@@ -46,7 +46,6 @@ def get_form_response(request, template_str, add_form, list_form, edit_form):
 
 def unpack_day_of_the_week(packed_day):
     return packed_day[1:-1].split(",", 1)
-#    return packed_day.split(": ", 1)
 
 def time(request):
 
@@ -55,44 +54,42 @@ def time(request):
     edit_form = None
 
     if request.method == "POST":
+        button = request.POST["form_button"]
 
         # adding new category
-        if request.POST.get("day_text"):
+        if button == "Add":
 
             add_form = AddDayOfTheWeekForm(request.POST)
             if add_form.is_valid():
 
-                if DayOfTheWeek.objects.filter(day_text=request.POST['day_text']) or DayOfTheWeek.objects.filter(index_int=request.POST['index_int']):
-                    messages.error(request, 'Day already exist.')
-                else:
-                    add_form.save()
-                    messages.info(request, 'Day was added.')
-                    # redirection prevent from resending post after page refresh
-                    return HttpResponseRedirect(request.path)
-
-        # day was selected
-        elif request.POST.get("days_list"):
-
-            [ index, day_name ] = unpack_day_of_the_week(request.POST.get('days_list'))
-            logger.error('=============Invalid date value4.' + index + " " + day_name)
-            # edit day
-            if request.POST.get("list_form") == "Edit":
-
-                edit_form = EditDayOfTheWeekForm({'edit_day_text': day_name, 'edit_day_index': index})
-                request.session['original_day_text'] = day_name
-                request.session['original_day_index'] = index
-            # delete day
-            elif request.POST.get("list_form") == "Delete":
-
-                DayOfTheWeek.objects.filter(day_text=day_name).delete()
-                messages.info(request, 'Day was deleted.')
+                add_form.save()
+                messages.info(request, 'Day was added.')
                 # redirection prevent from resending post after page refresh
                 return HttpResponseRedirect(request.path)
 
-        # try to edit category_text
-        elif request.POST.get("edit_day_text"):
+        # day was selected
+        elif button == "Edit":
 
-            if request.session['original_day_text'] == request.POST['edit_day_text'] and request.session['original_day_index'] == request.POST['edit_day_index']:
+            # edit day
+            [ index, day_name ] = unpack_day_of_the_week(request.POST.get('days_list'))
+            data = {'edit_day_text': day_name, 'edit_day_index': index}
+            edit_form = EditDayOfTheWeekForm(data)
+            request.session['original_day_data'] = data
+
+        # delete day
+        elif button == "Delete":
+
+            DayOfTheWeek.objects.filter(day_text=day_name).delete()
+            messages.info(request, 'Day was deleted.')
+            # redirection prevent from resending post after page refresh
+            return HttpResponseRedirect(request.path)
+
+        # try to edit category_text
+        elif button == "Submit":
+
+            edit_form = EditCategoryForm(request.POST, initial=request.session['original_day_data'])
+            logger.error('========has_changed:{0}======== '.format(edit_form.has_changed()))
+            if edit_form.has_changed() == False :
                 messages.error(request, 'Day name or index value was not changed.')
             # check if changed value don't match with other value in db
             elif (request.session['original_day_text'] != request.POST['edit_day_text'] and DayOfTheWeek.objects.filter(day_text=request.POST['edit_day_text'])) or (request.session['original_day_index'] != request.POST['edit_day_index'] and DayOfTheWeek.objects.filter(index_int=request.POST['edit_day_index'])):
@@ -123,48 +120,41 @@ def category(request):
     list_form = None
     edit_form = None
 
-    if request.method == "POST":
+    if request.method == "POST" :
+        button = request.POST["form_button"]
 
         # adding new category
-        if request.POST.get("category_text"):
+        if button == "Add" :
 
             add_form = AddCategoryForm(request.POST)
             if add_form.is_valid():
-
-                if Category.objects.filter(category_text=request.POST['category_text']):
-                    messages.error(request, 'Category already exist.')
-                else:
-                    add_form.save()
-                    messages.info(request, 'Category was added.')
-                    # redirection prevent from resending post after page refresh
-                    return HttpResponseRedirect(request.path)
-
-        # category was selected
-        elif request.POST.get("categories_list"):
-            # edit category
-            if request.POST.get("list_form") == "Edit":
-
-                edit_form = EditCategoryForm({'edit_category': request.POST.get('categories_list')})
-                request.session['categories_list'] = request.POST.get('categories_list')
-            # delete category
-            elif request.POST.get("list_form") == "Delete":
-
-                Category.objects.filter(category_text=request.POST['categories_list']).delete()
-                messages.info(request, 'Category was deleted.')
+                add_form.save()
+                messages.info(request, 'Category was added.')
                 # redirection prevent from resending post after page refresh
                 return HttpResponseRedirect(request.path)
 
-        # try to edit category_text
-        elif request.POST.get("edit_category"):
+        # edit category
+        elif button == "Edit":
 
-            if request.session['categories_list'] == request.POST['edit_category']:
-                messages.error(request, 'Category value was not changed.')
-            elif Category.objects.filter(category_text=request.POST['edit_category']):
-                messages.error(request, 'Category already exists.')
-            else:
-                data = Category.objects.get(category_text=request.session['categories_list'])
-                data.category_text = request.POST['edit_category']
-                data.save()
+            data = Category.objects.get(category_text = request.POST['categories_list'])
+            edit_form = EditCategoryForm(instance = data)
+            request.session['original_category_text'] = request.POST['categories_list']
+
+        # delete category
+        elif button == "Delete":
+
+            Category.objects.filter(category_text = request.POST['categories_list']).delete()
+            messages.info(request, 'Category was deleted.')
+            # redirection prevent from resending post after page refresh
+            return HttpResponseRedirect(request.path)
+
+        # try to edit category_text
+        elif button == "Submit":
+
+            instance = Category.objects.get(category_text = request.session['original_category_text'])
+            edit_form = EditCategoryForm(request.POST, instance = instance)
+            if edit_form.is_valid():
+                edit_form.save()
                 messages.info(request, 'Category was changed.')
                 return HttpResponseRedirect(request.path)
 

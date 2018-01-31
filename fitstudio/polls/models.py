@@ -14,11 +14,11 @@ class Student(Model):
         return self.student_text
 
 class Category(Model):
-    category_text = CharField(max_length = 50)
+    category_text = CharField(max_length = 50, unique = True)
 
 class DayOfTheWeek(Model):
-    index_int = PositiveSmallIntegerField(default = 0)
-    day_text = CharField(max_length = 50)
+    index_int = PositiveSmallIntegerField(default = 0, unique = True)
+    day_text = CharField(max_length = 50, unique = True)
 
 class Coach(Model):
     name_text = CharField(max_length = 200)
