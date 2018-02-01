@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import CreateView
 from django.db.models import Q
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 
 from .models import WorkHours, ActivityTimeTable, ActivityDone, Category, DayOfTheWeek
 
@@ -47,6 +48,20 @@ def get_form_response(request, template_str, add_form, list_form, edit_form):
 def unpack_day_of_the_week(packed_day):
     return packed_day[1:-1].split(",", 1)
 
+def unpack_day_of_the_week_clean(packed_day):
+    [ index, day_name ] = unpack_day_of_the_week(packed_day)
+    # remove character ' from begining and end of the sting
+    return [ index, day_name[2:-1] ]
+
+def get_index_day_of_the_week(packed_day):
+    return unpack_day_of_the_week(packed_day)[0]
+
+def get_name_day_of_the_week(packed_day):
+    return unpack_day_of_the_week_clean(packed_day)[1]
+
+def get_day_of_the_week_by_index(packed_day):
+    return DayOfTheWeek.objects.get(index_int = get_index_day_of_the_week(packed_day))
+
 def time(request):
 
     add_form = None
@@ -71,15 +86,14 @@ def time(request):
         elif button == "Edit":
 
             # edit day
-            [ index, day_name ] = unpack_day_of_the_week(request.POST.get('days_list'))
-            data = {'edit_day_text': day_name, 'edit_day_index': index}
-            edit_form = EditDayOfTheWeekForm(data)
-            request.session['original_day_data'] = data
+            instance = get_day_of_the_week_by_index(request.POST.get('days_list'))
+            edit_form = EditDayOfTheWeekForm(instance = instance)
+            request.session['original_index_int'] = instance.index_int
 
         # delete day
         elif button == "Delete":
 
-            DayOfTheWeek.objects.filter(day_text=day_name).delete()
+            get_day_of_the_week_by_index(request.POST.get('days_list')).delete()
             messages.info(request, 'Day was deleted.')
             # redirection prevent from resending post after page refresh
             return HttpResponseRedirect(request.path)
@@ -87,18 +101,12 @@ def time(request):
         # try to edit category_text
         elif button == "Submit":
 
-            edit_form = EditCategoryForm(request.POST, initial=request.session['original_day_data'])
-            logger.error('========has_changed:{0}======== '.format(edit_form.has_changed()))
+            instance = DayOfTheWeek.objects.get(index_int = request.session['original_index_int'])
+            edit_form = EditDayOfTheWeekForm(request.POST, instance = instance)
             if edit_form.has_changed() == False :
-                messages.error(request, 'Day name or index value was not changed.')
-            # check if changed value don't match with other value in db
-            elif (request.session['original_day_text'] != request.POST['edit_day_text'] and DayOfTheWeek.objects.filter(day_text=request.POST['edit_day_text'])) or (request.session['original_day_index'] != request.POST['edit_day_index'] and DayOfTheWeek.objects.filter(index_int=request.POST['edit_day_index'])):
-                messages.error(request, 'Day name or value already exists.')
-            else:
-                data = DayOfTheWeek.objects.get(day_text=request.session['origin_day_text'])
-                data.day_text = request.POST['edit_day_text']
-                data.index_int = request.POST['edit_day_index']
-                data.save()
+                edit_form.add_error(NON_FIELD_ERRORS, ValidationError("Parameters need to be changed."))
+            elif edit_form.is_valid():
+                edit_form.save()
                 messages.info(request, 'Day was changed.')
                 return HttpResponseRedirect(request.path)
 
@@ -153,7 +161,9 @@ def category(request):
 
             instance = Category.objects.get(category_text = request.session['original_category_text'])
             edit_form = EditCategoryForm(request.POST, instance = instance)
-            if edit_form.is_valid():
+            if edit_form.has_changed() == False :
+                edit_form.add_error(NON_FIELD_ERRORS, ValidationError("Parameters need to be changed."))
+            elif edit_form.is_valid():
                 edit_form.save()
                 messages.info(request, 'Category was changed.')
                 return HttpResponseRedirect(request.path)

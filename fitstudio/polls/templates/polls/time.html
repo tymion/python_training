@@ -12,9 +12,13 @@
     {% for message in messages %}
         <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
+    <br>
     {% endif %}
+    {{ add_form.non_field_errors }}
+    {{ add_form.day_text.errors }}
     {{ add_form.day_text.label }} {{ add_form.day_text }}
     <br>
+    {{ add_form.index_int.errors }}
     {{ add_form.index_int.label }} {{ add_form.index_int }}
     <br>
     <input name="form_button" type="submit" value="Add"/>
@@ -31,7 +35,13 @@
 {% if edit_form %}
 <form name="edit_form" method="post">
     {% csrf_token %}
-    {{ edit_form }}
+    {{ edit_form.non_field_errors }}
+    {{ edit_form.day_text.errors }}
+    {{ edit_form.day_text.label }} {{ edit_form.day_text }}
+    <br>
+    {{ edit_form.index_int.errors }}
+    {{ edit_form.index_int.label }} {{ edit_form.index_int }}
+    <br>
     <input name="form_button" type="submit" value="Submit" />
 </form>
 {% endif %}

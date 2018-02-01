@@ -44,14 +44,15 @@ class AddDayOfTheWeekForm(ModelForm):
         }
 
 class ListDayOfTheWeekForm(Form):
-    choices_list = [(None, '')]
-    for day in DayOfTheWeek.objects.all():
-        val = str(day.index_int) + ": " + day.day_text
-        choices_list.append((val, val))
     days_list = ModelChoiceField(queryset = DayOfTheWeek.objects.all().values_list('index_int', 'day_text', named=False), empty_label = "")
-#    days_list = ChoiceField(choices = choices_list)
 
-class EditDayOfTheWeekForm(Form):
-    edit_day_text = CharField(label = 'Edit day name:', max_length = 100)
-    edit_day_index = IntegerField(label = 'Edit day index:', max_value = 6, min_value = 0)
+class EditDayOfTheWeekForm(ModelForm):
+    index_int = IntegerField(label = 'Edit day number:', max_value = 6, min_value = 0)
+
+    class Meta:
+        model = DayOfTheWeek
+        fields = ['day_text', 'index_int']
+        labels = {
+            'day_text': 'Edit day name:',
+        }
 

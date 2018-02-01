@@ -17,7 +17,13 @@ class Category(Model):
     category_text = CharField(max_length = 50, unique = True)
 
 class DayOfTheWeek(Model):
-    index_int = PositiveSmallIntegerField(default = 0, unique = True)
+    index_int = PositiveSmallIntegerField(
+        default = 0,
+        unique = True,
+        validators = [
+                MaxValueValidator(6),
+            ]
+    )
     day_text = CharField(max_length = 50, unique = True)
 
 class Coach(Model):
