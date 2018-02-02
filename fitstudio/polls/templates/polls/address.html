@@ -1,0 +1,33 @@
+{% extends 'polls/base.html' %}
+
+{% block stylesheet %}
+{{ form.media }}
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ add_form.name_text.label }}{{ add_form.name_text }}
+    </br>
+    {{ add_form.surname_text.label }}{{ add_form.surname_text }}
+    </br>
+    {{ add_form.alias_text.label }}{{ add_form.alias_text }}
+    </br>
+    {{ add_form.coachAddress_address.label }}{{ add_form.coachAddress_address }}
+    </br>
+    {{ add_form.description_text.label }}{{ add_form.description_text }}
+    </br>
+    {{ add_form.category_array.label }}{{ add_form.category_array }}
+    </br>
+    <input name="form_button" type="submit" value="Add">
+</form>
+
+<form method="post">
+    {% csrf_token %}
+    {{ list_form }}
+    <input name="form_button" type="submit" value="Add">
+</form>
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

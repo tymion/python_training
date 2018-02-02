@@ -29,9 +29,9 @@ class DayOfTheWeek(Model):
 class Coach(Model):
     name_text = CharField(max_length = 200)
     surname_text = CharField(max_length = 200)
-    alias_text = CharField(max_length = 200)
+    alias_text = CharField(max_length = 200, blank = True)
     coachAddress_address = AddressField(on_delete = CASCADE)
-    description_text = CharField(max_length = 200)
+    description_text = CharField(max_length = 200, blank = True)
     category_array = ManyToManyField(Category)
 
 class Term(Model):

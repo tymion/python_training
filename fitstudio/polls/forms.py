@@ -3,7 +3,9 @@ import logging
 from django.forms import Form, ModelForm, CharField, TimeField, IntegerField, ChoiceField, ModelChoiceField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .models import Category, DayOfTheWeek
+from address.forms import AddressField
+
+from .models import Category, DayOfTheWeek, Coach
 
 logger = logging.getLogger(__name__)
 
@@ -55,4 +57,32 @@ class EditDayOfTheWeekForm(ModelForm):
         labels = {
             'day_text': 'Edit day name:',
         }
+
+class TestForm(Form):
+    coachAddress_address = AddressField()
+
+class AddCoachForm(ModelForm):
+    coachAddress_address = AddressField()
+
+    class Meta:
+        model = Coach
+        fields = [
+                'name_text',
+                'surname_text',
+                'alias_text',
+                'coachAddress_address',
+                'description_text',
+                'category_array',
+        ]
+        labels = {
+            'name_text': 'Name:',
+            'surname_text': 'Surname:',
+            'alias_text': 'Alias:',
+            'coachAddress_address': 'Address:',
+            'description_text': 'Description:',
+            'category_array': 'Categories:',
+        }
+#        fields_classes = {
+#            'coachAddress_address': AddressField
+#        }
 

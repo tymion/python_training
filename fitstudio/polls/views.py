@@ -15,24 +15,11 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 
 from .models import WorkHours, ActivityTimeTable, ActivityDone, Category, DayOfTheWeek
 
-from .forms import NameForm, AddCategoryForm, ListCategoryForm, EditCategoryForm
+from .forms import AddCategoryForm, ListCategoryForm, EditCategoryForm
 from .forms import AddDayOfTheWeekForm, ListDayOfTheWeekForm, EditDayOfTheWeekForm
+from .forms import AddCoachForm, TestForm
 
 logger = logging.getLogger(__name__)
-
-def get_name(request):
-    if request.method == "POST":
-        logger.error('=============Invalid date value1.')
-        form = NameForm(request.POST)
-        if form.is_valid():
-            logger.error('=============Invalid date value.2')
-            return HttpResponseRedirect('/thanks/')
-    else:
-        logger.error('=============Invalid date value.i3')
-        form = NameForm()
-
-    logger.error('=============Invalid date value4.')
-    return render(request, 'polls/index.html', {'form': form})
 
 def get_form_response(request, template_str, add_form, list_form, edit_form):
     forms = {
@@ -61,6 +48,64 @@ def get_name_day_of_the_week(packed_day):
 
 def get_day_of_the_week_by_index(packed_day):
     return DayOfTheWeek.objects.get(index_int = get_index_day_of_the_week(packed_day))
+
+def address(request):
+
+    add_form = None
+    list_form = None
+    edit_form = None
+
+    if request.method == "POST" :
+        button = request.POST["form_button"]
+
+        # adding new category
+        if button == "Add" :
+
+            add_form = AddCoachForm(request.POST)
+            if add_form.is_valid():
+                add_form.save()
+                messages.info(request, 'Coach was added.')
+                # redirection prevent from resending post after page refresh
+                return HttpResponseRedirect(request.path)
+
+        # edit category
+        elif button == "Edit":
+
+            data = Category.objects.get(category_text = request.POST['categories_list'])
+            edit_form = EditCategoryForm(instance = data)
+            request.session['original_category_text'] = request.POST['categories_list']
+
+        # delete category
+        elif button == "Delete":
+
+            Category.objects.filter(category_text = request.POST['categories_list']).delete()
+            messages.info(request, 'Category was deleted.')
+            # redirection prevent from resending post after page refresh
+            return HttpResponseRedirect(request.path)
+
+        # try to edit category_text
+        elif button == "Submit":
+
+            instance = Category.objects.get(category_text = request.session['original_category_text'])
+            edit_form = EditCategoryForm(request.POST, instance = instance)
+            if edit_form.has_changed() == False :
+                edit_form.add_error(NON_FIELD_ERRORS, ValidationError("Parameters need to be changed."))
+            elif edit_form.is_valid():
+                edit_form.save()
+                messages.info(request, 'Category was changed.')
+                return HttpResponseRedirect(request.path)
+
+        else:
+
+            logger.error('Unknown form has send POST request!')
+            return HttpResponseBadRequest()
+
+    if add_form is None:
+        add_form = AddCoachForm()
+    if list_form is None:
+        list_form = TestForm()
+
+    return get_form_response(request, 'polls/address.html', add_form, list_form, edit_form)
 
 def time(request):
 
