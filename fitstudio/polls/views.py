@@ -17,7 +17,7 @@ from .models import WorkHours, ActivityTimeTable, ActivityDone, Category, DayOfT
 
 from .forms import AddCategoryForm, ListCategoryForm, EditCategoryForm
 from .forms import AddDayOfTheWeekForm, ListDayOfTheWeekForm, EditDayOfTheWeekForm
-from .forms import AddCoachForm, TestForm
+from .forms import AddCoachForm, TestForm, AddCountryForm
 
 logger = logging.getLogger(__name__)
 
@@ -61,10 +61,10 @@ def address(request):
         # adding new category
         if button == "Add" :
 
-            add_form = AddCoachForm(request.POST)
+            add_form = AddCountryForm(request.POST)
             if add_form.is_valid():
                 add_form.save()
-                messages.info(request, 'Coach was added.')
+                messages.info(request, 'Country was added.')
                 # redirection prevent from resending post after page refresh
                 return HttpResponseRedirect(request.path)
 

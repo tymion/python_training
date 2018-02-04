@@ -7,6 +7,13 @@ from django.db.models import CharField, IntegerField, ManyToManyField, BooleanFi
 from django.db.models import DateField, PositiveSmallIntegerField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+def validate_even(value):
+    if value % 2 != 0:
+        raise ValidationError(
+                _('%(value)s is not an even number'),
+                params={'value': value},
+                )
+
 class Student(Model):
     student_text = CharField(max_length = 200)
 
@@ -25,6 +32,69 @@ class DayOfTheWeek(Model):
             ]
     )
     day_text = CharField(max_length = 50, unique = True)
+
+class Country(Model):
+    name = CharField(max_length = 200)
+    code = PositiveSmallIntegerField(
+            default = 0,
+            unique = True,
+            validators = [
+                MaxValueValidator(1939),
+                MinValueValidator(1),
+                ]
+            )
+
+class Voivodship(Model):
+    name = CharField(max_length = 200)
+    code = PositiveSmallIntegerField(
+            default = 0,
+            unique = True,
+            validators = [
+                MaxValueValidator(32),
+                MinValueValidator(2),
+                validate_even
+                ]
+            )
+    country = ForeignKey(Country, on_delete = CASCADE)
+
+class County(Model):
+    name = CharField(max_length = 200)
+    code = PositiveSmallIntegerField(
+            default = 0,
+            blank = True,
+            validators = [
+                MaxValueValidator(79),
+                MinValueValidator(1),
+                ]
+            )
+    voivodship = ForeignKey(Voivodship, on_delete = CASCADE)
+
+class AdministrativeCodeUnitType(Model):
+    name = CharField(max_length = 200)
+    code = PositiveSmallIntegerField(
+            default = 0,
+            unique = True,
+            validators = [
+                MaxValueValidator(9),
+                MinValueValidator(1),
+                ]
+            )
+
+class AdministrativceCommunity(Model):
+    name = CharField(max_length = 200)
+    code = PositiveSmallIntegerField(
+            default = 0,
+            unique = True,
+            validators = [
+                MaxValueValidator(20),
+                MinValueValidator(1),
+                ]
+            )
+    county = ForeignKey(County, on_delete = CASCADE)
+    unit_type = ForeignKey(AdministrativeCodeUnitType, on_delete = CASCADE)
+
+class Address(Model):
+    country = ForeignKey(Country, on_delete = CASCADE)
 
 class Coach(Model):
     name_text = CharField(max_length = 200)

@@ -5,7 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from address.forms import AddressField
 
-from .models import Category, DayOfTheWeek, Coach
+from .models import Category, DayOfTheWeek, Coach, Country
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +62,6 @@ class TestForm(Form):
     coachAddress_address = AddressField()
 
 class AddCoachForm(ModelForm):
-    coachAddress_address = AddressField()
-
     class Meta:
         model = Coach
         fields = [
@@ -82,7 +80,15 @@ class AddCoachForm(ModelForm):
             'description_text': 'Description:',
             'category_array': 'Categories:',
         }
-#        fields_classes = {
-#            'coachAddress_address': AddressField
-#        }
+        fields_classes = {
+            'coachAddress_address': AddressField
+        }
 
+class AddCountryForm(ModelForm):
+    class Meta:
+        model = Country
+        fields = [ 'name', 'code' ]
+        labels = {
+                'name': 'Kraj:',
+                'code': 'Kod:',
+        }
