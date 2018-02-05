@@ -1,10 +1,10 @@
 {% extends 'polls/base.html' %}
 
 {% block content %}
-<a href="/polls/category.html">Category</a>
+<a href="{% url 'category' %}">Category</a>
 </br>
-<a href="/polls/time.html">Time</a>
+<a href="{% url 'time'%}">Time</a>
 </br>
-<a href="/polls/address.html">Address</a>
+<a href="{% url 'address' %}">Address</a>
 
 {% endblock %}
