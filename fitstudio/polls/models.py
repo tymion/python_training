@@ -81,7 +81,7 @@ class County(Model):
     voivodship_key = ForeignKey(Voivodship, on_delete = CASCADE)
 
     def __str__(self):
-        return self.name_text + ", " + str(voivodship_key)
+        return self.name_text + ", " + str(self.voivodship_key)
 
 class AdministrativeCodeUnitType(Model):
     name_text = CharField(max_length = 200)
@@ -125,7 +125,7 @@ class PostalCode(Model):
             )
 
     def __str__(self):
-        return '{0:02d}-{1:03d}'.format(postal_code_int // 1000, postal_code_int % 1000)
+        return '{0:02d}-{1:03d}'.format(self.postal_code_int // 1000, self.postal_code_int % 1000)
 
 class Address(Model):
     community_key = ForeignKey(
