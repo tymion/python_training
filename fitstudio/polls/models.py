@@ -4,7 +4,7 @@ from address.models import AddressField
 
 from django.db.models import Model, CASCADE, ForeignKey
 from django.db.models import CharField, IntegerField, ManyToManyField, BooleanField, TimeField
-from django.db.models import DateField, PositiveSmallIntegerField
+from django.db.models import DateField, PositiveSmallIntegerField, PositiveIntegerField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 def validate_even(value):
@@ -33,20 +33,28 @@ class DayOfTheWeek(Model):
     )
     day_text = CharField(max_length = 50, unique = True)
 
+    def __str__(self):
+        return self.day_text
+
 class Country(Model):
-    name = CharField(max_length = 200)
-    code = PositiveSmallIntegerField(
+    name_text = CharField(max_length = 200, unique = True, default = '')
+    code_alpha_2_text = CharField(max_length = 2, unique = True, default = '')
+    code_alpha_3_text = CharField(max_length = 3, unique = True, default = '')
+    code_int = PositiveSmallIntegerField(
             default = 0,
             unique = True,
             validators = [
-                MaxValueValidator(1939),
+                MaxValueValidator(999),
                 MinValueValidator(1),
                 ]
             )
 
+    def __str__(self):
+        return self.name_text
+
 class Voivodship(Model):
-    name = CharField(max_length = 200)
-    code = PositiveSmallIntegerField(
+    name_text = CharField(max_length = 200)
+    code_int = PositiveSmallIntegerField(
             default = 0,
             unique = True,
             validators = [
@@ -55,11 +63,14 @@ class Voivodship(Model):
                 validate_even
                 ]
             )
-    country = ForeignKey(Country, on_delete = CASCADE)
+    country_key = ForeignKey(Country, on_delete = CASCADE)
+
+    def __str__(self):
+        return self.name_text + " (" + str(self.country_key) + ")"
 
 class County(Model):
-    name = CharField(max_length = 200)
-    code = PositiveSmallIntegerField(
+    name_text = CharField(max_length = 200)
+    code_int = PositiveSmallIntegerField(
             default = 0,
             blank = True,
             validators = [
@@ -67,11 +78,14 @@ class County(Model):
                 MinValueValidator(1),
                 ]
             )
-    voivodship = ForeignKey(Voivodship, on_delete = CASCADE)
+    voivodship_key = ForeignKey(Voivodship, on_delete = CASCADE)
+
+    def __str__(self):
+        return self.name_text + ", " + str(voivodship_key)
 
 class AdministrativeCodeUnitType(Model):
-    name = CharField(max_length = 200)
-    code = PositiveSmallIntegerField(
+    name_text = CharField(max_length = 200)
+    code_int = PositiveSmallIntegerField(
             default = 0,
             unique = True,
             validators = [
@@ -80,9 +94,12 @@ class AdministrativeCodeUnitType(Model):
                 ]
             )
 
+    def __str__(self):
+        return self.name_text
+
 class AdministrativceCommunity(Model):
-    name = CharField(max_length = 200)
-    code = PositiveSmallIntegerField(
+    name_text = CharField(max_length = 200)
+    code_int = PositiveSmallIntegerField(
             default = 0,
             unique = True,
             validators = [
@@ -90,11 +107,52 @@ class AdministrativceCommunity(Model):
                 MinValueValidator(1),
                 ]
             )
-    county = ForeignKey(County, on_delete = CASCADE)
-    unit_type = ForeignKey(AdministrativeCodeUnitType, on_delete = CASCADE)
+    county_key = ForeignKey(County, on_delete = CASCADE)
+    unit_type_key = ForeignKey(AdministrativeCodeUnitType, on_delete = CASCADE)
+
+    def __str__(self):
+        # TODO custom str according to unit_type_key
+        return self.name_text
+
+class PostalCode(Model):
+    postal_code_int = PositiveIntegerField(
+            default = 0,
+            unique = True,
+            validators = [
+                MinValueValidator(1),
+                MaxValueValidator(99999),
+                ]
+            )
+
+    def __str__(self):
+        return '{0:02d}-{1:03d}'.format(postal_code_int // 1000, postal_code_int % 1000)
 
 class Address(Model):
-    country = ForeignKey(Country, on_delete = CASCADE)
+    community_key = ForeignKey(
+            AdministrativceCommunity,
+            on_delete = CASCADE,
+            blank = True,
+            null = True
+            )
+    street_text = CharField(max_length = 200, default='')
+    house_nr_int = PositiveSmallIntegerField(
+            default = 0,
+            validators = [
+                MinValueValidator(1),
+                ]
+            )
+    flat_nr_int = PositiveSmallIntegerField(
+            default = 0,
+            validators = [
+                MinValueValidator(1),
+                ]
+            )
+    postal_code_key = ForeignKey(
+            PostalCode,
+            on_delete = CASCADE,
+            blank = True,
+            null = True
+            )
 
 class Coach(Model):
     name_text = CharField(max_length = 200)

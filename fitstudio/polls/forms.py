@@ -87,8 +87,8 @@ class AddCoachForm(ModelForm):
 class AddCountryForm(ModelForm):
     class Meta:
         model = Country
-        fields = [ 'name', 'code' ]
+        fields = [ 'name_text', 'code_int' ]
         labels = {
-                'name': 'Kraj:',
-                'code': 'Kod:',
+                'name_text': 'Kraj:',
+                'code_int': 'Kod:',
         }
